@@ -59,17 +59,41 @@ function Board({ turnX, square, onPlay }) {
 
 export default function App() {
 
-  const [turnX, setTurnX] = useState(true);
   const [history, setHistory] = useState([Array(9).fill(null)]);
-  const currentSquare = history[history.length - 1];
+  const [currentMove, setCurrentMove] = useState(0);
+  const currentSquare = history[currentMove];
+  const turnX = currentMove % 2 === 0;
 
   function handlePlay(nextSquare) {
-    setHistory([...history, nextSquare]);
-    setTurnX(!turnX);
+    const nextHistory = [...history.slice(0, currentMove +1), nextSquare];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1)
   }
+
+  function pastMove(nextMove) {
+    setCurrentMove(nextMove);
+  }
+
+  const moves = history.map((square, move) => {
+    let description;
+    (move > 0? description = `GoTo move ${move}` : description = 'GoTo Start')
+    return (
+      <li key={move}>
+        <button onClick={() => pastMove(move)}>{description}</button>
+      </li>
+    );
+  })
+
   return (
     <>
-      <Board turnX={turnX} square={currentSquare} onPlay={handlePlay}  />
+    <div className="game">
+      <div className="game-board">
+        <Board turnX={turnX} square={currentSquare} onPlay={handlePlay}  />
+      </div>
+      <div className="game-history">
+        <ol>{moves}</ol>
+      </div>
+    </div>
     </>
   );
 }
